@@ -13,22 +13,20 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-  // Your Firebase config
+  // FIXED Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyAM_L7QRSttLJQxf6AJSfiFWWQddEWP75M",
     authDomain: "hla-fitness-a296a.firebaseapp.com",
     projectId: "hla-fitness-a296a",
-    storageBucket: "hla-fitness-a296a.firebasestorage.app",
+    storageBucket: "hla-fitness-a296a.appspot.com",   // <-- FIXED HERE
     messagingSenderId: "158123447646",
     appId: "1:158123447646:web:c5d4e8d1e0ccdb27b0abcf",
     measurementId: "G-4FDYQPXKE4"
   };
 
-  // Init Firebase
   const app = initializeApp(firebaseConfig);
   const storage = getStorage(app);
 
-  // Upload logic
   document.getElementById("upload").onclick = async () => {
     const text = document.getElementById("text").value;
     const status = document.getElementById("status");
@@ -48,6 +46,7 @@
       status.textContent = "Upload successful!";
     } catch (err) {
       status.textContent = "Error: " + err.message;
+      console.error(err);
     }
   };
 </script>
