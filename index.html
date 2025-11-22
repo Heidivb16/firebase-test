@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Firebase Storage Test</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f3f3;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: auto;
+      padding: 25px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    input[type="file"] {
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 10px 18px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #005ec9;
+    }
+
+    p {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Firebase Storage Upload Test</h2>
+
+    <input type="file" id="fileInput" />
+    <button id="uploadBtn">Upload File</button>
+
+    <p id="status"></p>
+
+    <h3>Uploaded File Preview:</h3>
+    <img id="preview" src="" alt="" style="display:none; max-width:300px;">
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+    // Firebase config you provided
+    const firebaseConfig = {
+      apiKey: "AIzaSyAM_L7QRSttLJQxf6AJSfiFWWQddEWP75M",
+      authDomain: "hla-fitness-a296a.firebaseapp.com",
+      projectId: "hla-fitness-a296a",
+      storageBucket: "hla-fitness-a296a.firebasestorage.app",
+      messagingSenderId: "158123447646",
+      appId: "1:158123447646:web:c5d4e8d1e0ccdb27b0abcf",
+      measurementId: "G-4FDYQPXKE4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const storage = getStorage(app);
+
+    const fileInput = document.getElementById("fileInput");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const status = document.getElementById("status");
+    const preview = document.getElementById("preview");
+
+    uploadBtn.onclick = async () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        status.textContent = "No file selected.";
+        return;
+      }
+
+      status.textContent = "Uploading...";
+
+      const fileRef = ref(storage, "test/" + file.name);
+
+      try {
+        await uploadBytes(fileRef, file);
+        status.textContent = "Upload successful! Getting URL...";
+
+        const url = await getDownloadURL(fileRef);
+        status.textContent = "File uploaded! Preview below:";
+        preview.src = url;
+        preview.style.display = "block";
+
+      } catch (err) {
+        console.error(err);
+        status.textContent = "Upload failed: " + err.message;
+      }
+    };
+  </script>
+</body>
+</html>
