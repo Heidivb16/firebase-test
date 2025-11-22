@@ -1,133 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Firebase Storage Text Note Test</title>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f3f3;
-      padding: 40px;
-    }
-
-    .container {
-      max-width: 480px;
-      margin: auto;
-      padding: 25px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-
-    textarea {
-      width: 100%;
-      height: 150px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin-top: 10px;
-      resize: vertical;
-      font-size: 16px;
-    }
-
-    button {
-      padding: 10px 18px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    button:hover {
-      background: #005ec9;
-    }
-
-    p {
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    .url-box {
-      margin-top: 10px;
-      padding: 8px;
-      background: #eee;
-      border-radius: 5px;
-      font-size: 14px;
-      word-break: break-all;
-    }
-  </style>
-</head>
-
+<html>
 <body>
-  <div class="container">
-    <h2>Upload Text Note to Firebase Storage</h2>
 
-    <textarea id="noteInput" placeholder="Type your note here..."></textarea>
-    <button id="uploadBtn">Upload Note</button>
+<h3>Firebase Storage Test</h3>
 
-    <p id="status"></p>
-    <div id="fileURL" class="url-box" style="display:none;"></div>
-  </div>
+<textarea id="text" placeholder="Type something..."></textarea><br><br>
+<button id="upload">Upload Note</button>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+<p id="status"></p>
 
-    // Firebase config you provided
-    const firebaseConfig = {
-      apiKey: "AIzaSyAM_L7QRSttLJQxf6AJSfiFWWQddEWP75M",
-      authDomain: "hla-fitness-a296a.firebaseapp.com",
-      projectId: "hla-fitness-a296a",
-      storageBucket: "hla-fitness-a296a.firebasestorage.app",
-      messagingSenderId: "158123447646",
-      appId: "1:158123447646:web:c5d4e8d1e0ccdb27b0abcf",
-      measurementId: "G-4FDYQPXKE4"
-    };
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const storage = getStorage(app);
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyAM_L7QRSttLJQxf6AJSfiFWWQddEWP75M",
+    authDomain: "hla-fitness-a296a.firebaseapp.com",
+    projectId: "hla-fitness-a296a",
+    storageBucket: "hla-fitness-a296a.firebasestorage.app",
+    messagingSenderId: "158123447646",
+    appId: "1:158123447646:web:c5d4e8d1e0ccdb27b0abcf",
+    measurementId: "G-4FDYQPXKE4"
+  };
 
-    const noteInput = document.getElementById("noteInput");
-    const uploadBtn = document.getElementById("uploadBtn");
+  // Init Firebase
+  const app = initializeApp(firebaseConfig);
+  const storage = getStorage(app);
+
+  // Upload logic
+  document.getElementById("upload").onclick = async () => {
+    const text = document.getElementById("text").value;
     const status = document.getElementById("status");
-    const fileURL = document.getElementById("fileURL");
 
-    uploadBtn.onclick = async () => {
-      const text = noteInput.value.trim();
-      if (!text) {
-        status.textContent = "Please type something first.";
-        return;
-      }
+    if (!text) {
+      status.textContent = "Type something first.";
+      return;
+    }
 
-      status.textContent = "Uploading...";
+    status.textContent = "Uploading...";
 
-      // Convert text to a Blob
-      const blob = new Blob([text], { type: "text/plain" });
+    const blob = new Blob([text], { type: "text/plain" });
+    const fileRef = ref(storage, "test-note.txt");
 
-      // Generate a filename with timestamp
-      const fileName = "note-" + Date.now() + ".txt";
-      const fileRef = ref(storage, "notes/" + fileName);
+    try {
+      await uploadBytes(fileRef, blob);
+      status.textContent = "Upload successful!";
+    } catch (err) {
+      status.textContent = "Error: " + err.message;
+    }
+  };
+</script>
 
-      try {
-        await uploadBytes(fileRef, blob);
-        status.textContent = "Note uploaded! Getting URL...";
-
-        const url = await getDownloadURL(fileRef);
-        status.textContent = "Upload complete!";
-        
-        fileURL.style.display = "block";
-        fileURL.textContent = url;
-
-      } catch (err) {
-        console.error(err);
-        status.textContent = "Upload failed: " + err.message;
-      }
-    };
-  </script>
 </body>
 </html>
